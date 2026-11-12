@@ -1,7 +1,7 @@
 # ============================================================
 # CABECERA
 # ============================================================
-# Propuesta de resolución Martín/Miguel
+# Propuesta de resolución
 #
 # CÓMO LEER ESTE FICHERO
 # Es el mismo esqueleto que recibisteis. Solo se ha tocado lo que el
@@ -49,6 +49,14 @@ MODEL = "gpt-4.1-mini"
 #   5. Qué gráfico usar en cada tipo de pregunta.
 #   6. Cuándo NO responder (fuera de alcance).
 #   7. Formato exacto de la respuesta, con ejemplos.
+#
+# POR QUÉ SE INSISTE TANTO EN EL FORMATO DEL JSON (sección 6)
+# parse_response() usa json.loads(), que es estricto: un salto de línea
+# real dentro de un string, una comilla escapada como \' o una frase
+# después del objeto bastan para que falle, y el usuario solo ve "No he
+# podido interpretar la respuesta". El código suele tener varias líneas,
+# así que el modelo tiende a escribir saltos reales. Por eso la regla se
+# dice de forma explícita y los ejemplos la cumplen.
 #
 # Recordatorio técnico: el texto pasa por .format() en build_prompt().
 # Las llaves sueltas se interpretan como placeholders, así que las llaves
@@ -145,7 +153,10 @@ o bien:
 
 {{"tipo": "fuera_de_alcance", "codigo": "", "interpretacion": "<texto>"}}
 
-- "codigo" es un único string: separa las líneas con \\n y usa comillas simples (') dentro del código.
+- "codigo" es un único string en UNA sola línea. Dentro del string NUNCA pongas un salto de línea real:
+  separa las instrucciones escribiendo los dos caracteres \\n (barra invertida + n), como en los ejemplos.
+- Dentro del código usa comillas simples (') y no las escapes: nunca escribas \\' (no es válido en JSON).
+- La respuesta debe poder leerse con json.loads() de Python tal cual: un único objeto, nada antes ni después.
 - "interpretacion": 1-3 frases en español que digan qué muestra el gráfico y qué criterio se ha usado (métrica, periodo, filtro).
   El código aún no se ha ejecutado cuando la escribes, así que NO des cifras, nombres de ganadores ni conclusiones: no los conoces.
 
